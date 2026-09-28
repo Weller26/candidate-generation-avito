@@ -2,9 +2,9 @@
 
 Решение задачи первого этапа поиска (Retrieval) для отбора топ-50 релевантных объявлений по поисковому запросу пользователя. Результат на тестовых данных (Recall@50): ~0.75.
 
-Основной пайплайн: main_pipeline.ipynb
+Основной пайплайн: [main_pipeline.ipynb](main_pipeline.ipynb)
 
-Educational Data Analysis: eda.ipynb
+Educational Data Analysis: [eda.ipynb](eda.ipynb)
 
 ## 1. Данные и используемые признаки
 
