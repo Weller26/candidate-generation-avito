@@ -1,6 +1,10 @@
 import numpy as np
 
 def calculate_recall_at_k(predictions: dict, ground_truth: dict, k=50):
+    """
+    Расчитывает метрику Recall@50 для предсказаний (predictions) 
+    и правильных ответов (ground truth).
+    """
     recalls = []
     
     for query_id, true_items in ground_truth.items():

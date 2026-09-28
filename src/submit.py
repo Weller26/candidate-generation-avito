@@ -1,7 +1,9 @@
 import pandas as pd
 
-
 def save_csv_answer(predictions: dict[str, list[str]], filepath: str, top_n: int = 50):
+    """
+    Приводит данные предсказаний к pd.DataFrame и сохраняет их в .csv файл.
+    """
     submission_data = []
 
     for qid, items in predictions.items():

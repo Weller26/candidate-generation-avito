@@ -9,6 +9,12 @@ import os
 import pickle
 
 class CandidateGenerationPipeline:
+    """
+    Пайплайн кандидатогенерации.
+    Объединяет лексический поиск (BM25), семантический поиск (Bi-Encoder) 
+    и бизнес-эвристики (рейтинг, количество отзывов, локация и пр.) для 
+    отбора топ-N релевантных объявлений.
+    """
     def __init__(
             self,
             df_items: pd.DataFrame,
@@ -34,6 +40,10 @@ class CandidateGenerationPipeline:
         self._init_embeddings(df_items, params_description_max_length)
 
     def _init_features(self, df_items):
+        """
+        Извлекает табличные признаки объявлений (категории, локации, рейтинги) 
+        в Numpy-массивы для быстрой векторизованной фильтрации.
+        """
         self.item_ids = df_items['item_id'].values
         self.item_cat_ids = df_items['item_category_id'].values
         self.item_loc_ids = df_items['item_location_id'].values
@@ -44,6 +54,10 @@ class CandidateGenerationPipeline:
         self.item_is_message_forbidden = df_items['item_is_message_forbidden'].fillna(0.0).values
 
     def _init_bm25(self, df_items: pd.DataFrame, max_len: int):
+        """
+        Строит или загружает из кэша лексические индексы BM25Okapi 
+        отдельно для заголовков и описаний объявлений.
+        """
         title_path = os.path.join(self.cache_dir, 'bm25_title.pkl')
         desc_path = os.path.join(self.cache_dir, 'bm25_desc.pkl')
 
@@ -66,6 +80,10 @@ class CandidateGenerationPipeline:
                 pickle.dump(self.bm25_desc, f)
 
     def _init_embeddings(self, df_items: pd.DataFrame, max_len: int):
+        """
+        Векторизует тексты объявлений с помощью нейросети (SentenceTransformer) 
+        или мгновенно загружает готовую матрицу эмбеддингов из кэша (.npy).
+        """
         emb_path = os.path.join(self.cache_dir, 'item_embeddings.npy')
         if os.path.exists(emb_path):
             self.item_embeddings = np.load(emb_path, mmap_mode='r') 
@@ -109,7 +127,11 @@ class CandidateGenerationPipeline:
             bm25_weight,
             norm: str = 'min_max'
         ):
-        """Возвращает индексы подходящих кандидатов и их финальные баллы (BM25 + Нейросеть)"""        
+        """
+        Вычисляет базовый текстовые баллы кандидатов. 
+        Применяет жесткие фильтры и объединяет баллы 
+        BM25 и нейросети методами Min-Max нормализации или RRF.
+        """        
         target_cat_id = row.get('search_category', -1)
         target_cat_id = -1 if pd.isna(target_cat_id) else target_cat_id
         
@@ -157,6 +179,10 @@ class CandidateGenerationPipeline:
             review_count_weight: float = 0.15,
             norm: str = 'min_max'
         ):
+        """
+        Прогоняет запросы через пайплайн, применяет бизнес-эвристики 
+        и возвращает словарь с топ-N item_id для каждого запроса.
+        """
         processed_queries, min_ratings, queries_embeddings = self._prepare_queries_batch(df_queries)
         predictions = {}
 

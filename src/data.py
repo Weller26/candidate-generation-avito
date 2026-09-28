@@ -1,5 +1,4 @@
 import pandas as pd
-import random
 import re
 from nltk.stem.snowball import SnowballStemmer
 
@@ -7,6 +6,11 @@ def get_test_queries(
         df_train: pd.DataFrame,
         n: int = 5000
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Формирует валидационную выборку из тренировочных данных.
+    Группирует объявления по уникальным запросам, возвращает словарь с правильными 
+    ответами (ground truth) и DataFrame с признаками запросов для тестирования.
+    """
     search_cols = [
         'search_query', 
         'search_location_id', 
@@ -29,6 +33,11 @@ def get_test_queries(
     return val_ground_truth, val_queries_df
 
 def parse_search_params(params_text: str) -> dict:
+    """
+    Парсит строку параметров запроса. 
+    Извлекает числовое значение требуемого рейтинга и очищает текст от 
+    шаблонных ключей (например, "Вид услуги") для чистого поиска.
+    """
     if not isinstance(params_text, str) or not params_text.strip():
         return {'min_rating': 0.0, 'clean_text': ''}
 
@@ -66,6 +75,10 @@ def parse_search_params(params_text: str) -> dict:
     return parsed
 
 def tokenize(text: str, stemmer=SnowballStemmer('russian')) -> list[str]:
+    """
+    Токенизирует текст: переводит в нижний регистр, удаляет пунктуацию 
+    и применяет стемминг (или лемматизацию) для приведения слов к базовой форме.
+    """
     if not isinstance(text, str):
         return []
 
