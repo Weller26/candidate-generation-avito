@@ -1,0 +1,6 @@
+numpy
+pandas
+rank_bm25
+sentence_transformers
+nltk
+torch
